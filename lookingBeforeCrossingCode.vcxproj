@@ -140,16 +140,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\LookingB4Xing-coding\coding\calculate.cpp" />
-    <ClCompile Include="..\LookingB4Xing-coding\coding\rand.cpp" />
+    <ClCompile Include="calculate.cpp" />
     <ClCompile Include="dynamicProgramming.cpp" />
+    <ClCompile Include="rand.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\LookingB4Xing-coding\coding\calculate.h" />
-    <ClInclude Include="..\LookingB4Xing-coding\coding\parameters_template.h" />
-    <ClInclude Include="..\LookingB4Xing-coding\coding\utility-template.h" />
+    <ClInclude Include="calculate.h" />
     <ClInclude Include="parameters.h" />
+    <ClInclude Include="parameters_template.h" />
     <ClInclude Include="sensor.h" />
+    <ClInclude Include="utility-template.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

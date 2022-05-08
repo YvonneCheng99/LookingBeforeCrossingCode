@@ -18,27 +18,27 @@
     <ClCompile Include="dynamicProgramming.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\LookingB4Xing-coding\coding\calculate.cpp">
+    <ClCompile Include="calculate.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\LookingB4Xing-coding\coding\rand.cpp">
+    <ClCompile Include="rand.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\LookingB4Xing-coding\coding\parameters_template.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LookingB4Xing-coding\coding\calculate.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LookingB4Xing-coding\coding\utility-template.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="parameters.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sensor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="calculate.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="parameters_template.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utility-template.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
