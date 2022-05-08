@@ -1,0 +1,9 @@
+﻿  calculate.cpp
+  rand.cpp
+E:\paperWriting\LookingB4Xing-coding\coding\rand.cpp(36,29): warning C4244: “=”: 从“__int64”转换到“long”，可能丢失数据
+E:\paperWriting\LookingB4Xing-coding\coding\rand.cpp(37,21): warning C4305: “=”: 从“__int64”到“long”截断
+E:\paperWriting\LookingB4Xing-coding\coding\rand.cpp(37,8): warning C4309: “=”: 截断常量值
+  dynamicProgramming.cpp
+E:\paperWriting\lookingBeforeCrossingCode\dynamicProgramming.cpp(15,8): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+  正在生成代码...
+  lookingBeforeCrossingCode.vcxproj -> E:\paperWriting\lookingBeforeCrossingCode\x64\Debug\lookingBeforeCrossingCode.exe
