@@ -232,7 +232,7 @@ double cal(sensor s[], double xtime, int start, int finish, double dd[], int ss[
 	return xtime;
 }
 
-void divide(sensor s[], int first, int last, double& x, double dd[], int ss[], double vv[])
+double divide(sensor s[], int first, int last, double& x, double dd[], int ss[], double vv[])
 {
 
 	double xtime = x;
@@ -272,7 +272,7 @@ void divide(sensor s[], int first, int last, double& x, double dd[], int ss[], d
 
 	x = xtime;
 	//energy = ;
-	//return energy;
+	return e;
 }
 
 
@@ -414,4 +414,21 @@ void cal_on(sensor s[], int first, int last, double& xtime, double dd_on[], int 
 	cout << "Online energy:\t" << e << endl;
 
 
+}
+
+double energy_out(double dd[], int ss[], double vv[], int jj) {
+	for (int i = 0; i < jj; i++)
+		vv[i] = vv[i] > VBEST ? VBEST : vv[i];
+	if (DEBUG)
+		for (int i = 0; i < jj; i++)
+			cout << dd[i] << "   " << ss[i] << "   " << vv[i] << endl;
+
+	double d, v, p, e = 0;
+	for (int i = 0; i < jj - 1; i++) {
+		d = dd[i + 1] - dd[i];
+		v = vv[i];
+		p = 0.07 * v * v * v + 0.0391 * v * v - 13.196 * v + 390.95;
+		e += p * d / v;
+	}
+	return e;
 }
