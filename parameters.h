@@ -6,3 +6,4 @@
 #define SENSORNUM   15
 #define DRANGE			50
 #define TAU					20
+#define HEIGHT_ENERGY_COEF	2.3

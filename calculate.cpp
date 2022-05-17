@@ -22,7 +22,7 @@ double energy_out(double dd[], int ss[], double vv[], int jj) {
 	return e;
 }
 
-
+/*
 int main() {
 	sensor* ptr = new sensor[SENSORNUM + 1];//´«¸ÐÆ÷
 
@@ -61,4 +61,4 @@ int main() {
 	delete[] ptr;
 	return 0;
 }
-
+*/
