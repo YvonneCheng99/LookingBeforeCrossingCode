@@ -5,7 +5,7 @@
 #include"assert.h"
 #include"parameters.h"
 using namespace std;
-double vbest = 13.99; //最节能的速度
+extern double vbest = 13.99; //最节能的速度
 
 //一段有范围重叠的节点
 double cal(sensor s[], double xtime, int start, int finish, double dd[], int ss[], double vv[], int& ii) {

@@ -1,76 +1,45 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include "parameters.h"
-#include "sensor.h"
+#include "float.h"
+#include "dynamicProgramming.h"
 using namespace std;
 
-const double HEIGHT = 10;
-const double DELAT_H = 0.1;
-double* h;
 
-double altitudeScheduling()
+void initSensor(sensor2D* s)
 {
-	//离散化H
-	int K = ceil(HEIGHT / DELAT_H);
-	if (K > 0) h = new double[K];
-	else h = new double[1];
-	for (int i = 0; i <= K; i++)
-	{
-		h[i] = i * DELAT_H;
-	}
-
-	//动态规划
-	//存储能耗值的数组
-	vector<vector<double>> e_all(SENSORNUM, vector<double>(K));
-	//存储每个GN对应的高度
-	vector<double> h_fly(SENSORNUM);
-	//初始值
-	for (int i = 1; i < K; i++)
-	{
-		e_all[1][K] = 0;
-	}
-	for (int i = 2; i < SENSORNUM; i++)
-	{
-		for (int k = 1; k < K; k++)
-		{
-
-		}
-	}
-	return 0.0;
+	s[1] = sensor2D(2.0, 3.0, 2.0, 1.0);
+	s[2] = sensor2D(2.5, 4.0, 3.0, 1.4);
+	s[3] = sensor2D(1.5, 1.5, 3.8, 0.8);
+	s[4] = sensor2D(4.0, 3.0, 6.5, 1.2);
 }
 
-//根据气球模型获取对应高度的可传输数据范围
-double getTransmittableRange(int sennum, int h)
-{
-	return 0.0;
-}
 
-//获取对应速度的能耗值
-double getEnergyCon(double v)
+int main()
 {
-	if (v <= 0)
-	{
-		cout << "Invalid velocity." << endl;
-		return -1.0;
-	}
-	else
-	{
-		return 0.07 * v * v * v + 0.0391 * v * v - 13.196 * v + 390.95;
-	}
-}
-
-/*
-int mian()
-{
-	sensor* sensors = new sensor[SENSORNUM];
+	/*
+	sensor* sensors2D = new sensor[SENSORNUM];
 	//随机初始化GN的s和f的值
-	randam(sensors, SENSORNUM);
+	randam(sensors2D, SENSORNUM);
 	for (int i = 0; i < SENSORNUM; i++)
 	{
 		cout << i << "\t";
-		(sensors + i)->show();
+		(sensors2D + i)->show();
 	}
 	return 0;
+	*/
+	double height_max = 0.0;
+	
+	sensor2D* s = new sensor2D[SENSORNUM];
+	// double* h = new double[1];
+	initSensor(s);
+	//确定高度范围的最大值，即所有传感器中高度最高的传感器的高度
+	for (int i = 1; i <= SENSORNUM; i++)
+	{
+		if (height_max < s[i].h_max)
+			height_max = s[i].h_max;
+	}
+
+	double xtime = 0.0;
+	altitudeScheduling(s, xtime, height_max);
 }
-*/

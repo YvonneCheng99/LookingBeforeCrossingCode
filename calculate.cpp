@@ -1,26 +1,25 @@
-#include"sensor.h"
-#include"calculate.h"
-#include<iostream>
-#include <algorithm>
+//#include"calculate.h"
+//#include<iostream>
+//#include <algorithm>
+//
+//using namespace std;
 
-using namespace std;
-
-double energy_out(double dd[], int ss[], double vv[], int jj) {
-	for (int i = 0; i < jj; i++)
-		vv[i] = vv[i] > VBEST ? VBEST : vv[i];
-	if (DEBUG)
-		for (int i = 0; i < jj; i++)
-			cout << dd[i] << "   " << ss[i] << "   " << vv[i] << endl;
-
-	double d, v, p, e = 0;
-	for (int i = 0; i < jj - 1; i++) {
-		d = dd[i + 1] - dd[i];
-		v = vv[i];
-		p = 0.07 * v * v * v + 0.0391 * v * v - 13.196 * v + 390.95;
-		e += p * d / v;
-	}
-	return e;
-}
+//double energy_out(double dd[], int ss[], double vv[], int jj) {
+//	for (int i = 0; i < jj; i++)
+//		vv[i] = vv[i] > VBEST ? VBEST : vv[i];
+//	if (DEBUG)
+//		for (int i = 0; i < jj; i++)
+//			cout << dd[i] << "   " << ss[i] << "   " << vv[i] << endl;
+//
+//	double d, v, p, e = 0;
+//	for (int i = 0; i < jj - 1; i++) {
+//		d = dd[i + 1] - dd[i];
+//		v = vv[i];
+//		p = 0.07 * v * v * v + 0.0391 * v * v - 13.196 * v + 390.95;
+//		e += p * d / v;
+//	}
+//	return e;
+//}
 
 /*
 int main() {
