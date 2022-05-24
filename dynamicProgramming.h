@@ -67,7 +67,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight)
 	/*if (K > 0) h = new double[K + 2]();
 	else h = new double[1]();*/
 	
-	for (int i = 0; i <= K; i++)
+	for (int i = 0; i < K; i++)
 	{
 		h.push_back(i * DELTA_H);
 	}
@@ -75,7 +75,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight)
 	if (DEBUG)
 	{
 		cout << "h:";
-		for (int i = 0; i <= K; i++)
+		for (int i = 0; i < K; i++)
 			cout << h[i] << " ";
 		cout << endl;
 	}

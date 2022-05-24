@@ -30,7 +30,7 @@ int main()
 	*/
 	double height_max = 0.0;
 	
-	sensor2D* s = new sensor2D[SENSORNUM];
+	sensor2D* s = new sensor2D[SENSORNUM + 1];
 	// double* h = new double[1];
 	initSensor(s);
 	//确定高度范围的最大值，即所有传感器中高度最高的传感器的高度
@@ -42,4 +42,5 @@ int main()
 
 	double xtime = 0.0;
 	altitudeScheduling(s, xtime, height_max);
+	delete[]s;
 }
