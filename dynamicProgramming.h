@@ -216,6 +216,13 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 							//先记录段数，之后根据段数记录其他的值
 							numOfPeriodVector[i][k] = (rightOfJ < leftOfJ1) ? 
 								numOfPeriod + numOfPeriodVector[j][kk] : numOfPeriod + numOfPeriodVector[j][kk] + 1;
+							for (int a = 1; a <= numOfPeriodVector[j][kk]; a++)
+							{
+								hFly[k][a] = hFly[kk][a];
+								startCoordinate[k][a] = startCoordinate[kk][a];
+								endCoordinate[k][a] = endCoordinate[kk][a];
+								speedVector[k][a] = speedVector[kk][a];
+							}
 							//如果变化高度时空飞，高度怎么算
 							//是不是有范围的重叠两种情况对应不同的赋值情况
 							//如果范围没有重叠，首先给空飞的这一段赋值，然后段数下标+1,否则不做其他操作
