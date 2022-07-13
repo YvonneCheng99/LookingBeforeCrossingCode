@@ -15,6 +15,7 @@ void initSensor(sensor2D* s)
 }
 
 
+
 int main()
 {
 	/*
@@ -28,6 +29,7 @@ int main()
 	}
 	return 0;
 	*/
+	
 	double height_max = 0.0;
 	
 	sensor2D* s = new sensor2D[SENSORNUM + 1];
@@ -41,6 +43,11 @@ int main()
 	}
 
 	double xtime = 0.0;
-	altitudeScheduling(s, xtime, height_max);
+	double location[SENSORNUM * 3] = { 0.0 };//
+	int sensorNumber[SENSORNUM * 3] = { 0 };
+	double speed[SENSORNUM * 3] = { 0.0 };//
+	altitudeScheduling(s, xtime, height_max, location, sensorNumber, speed);
+	// double R = getR(2.0, 2.0, 3.0);
+	// cout << "R:" << R << endl;
 	delete[]s;
 }

@@ -232,7 +232,7 @@ double cal(sensor s[], double xtime, int start, int finish, double dd[], int ss[
 	return xtime;
 }
 
-double divide(sensor s[], int first, int last, double& x, double dd[], int ss[], double vv[])
+double divide(sensor s[], int first, int last, double& x, double dd[], int ss[], double vv[], int& NumofPeriod)
 {
 
 	double xtime = x;
@@ -240,31 +240,39 @@ double divide(sensor s[], int first, int last, double& x, double dd[], int ss[],
 	int finish = first;
 	int ii = 0;
 	dd[start] = s[start].start;
-	for (int i = first + 1; i < last; i++) {
-		//如果重叠则继续往后看
+	//如果只有一个GN，进不了这个循环，单独计算
+	if (last - first == 1)
+	{
+		xtime = cal(s, xtime, start, finish, dd, ss, vv, ii);
+	}
+	else 
+	{
+		for (int i = first + 1; i < last; i++) {
+			//如果重叠则继续往后看
 
-		if (s[i].start < s[i - 1].finish) {//如果范围有重叠（交叉
-			finish++;
-			if (finish == last - 1) {//如果是最后一个
+			if (s[i].start < s[i - 1].finish) {//如果范围有重叠（交叉
+				finish++;
+				if (finish == last - 1) {//如果是最后一个
+					xtime = cal(s, xtime, start, finish, dd, ss, vv, ii);
+					xtime += (s[i].start - s[i - 1].finish) / vbest;
+
+				}
+			}
+			else//不重叠就断开，生成新的数组
+			{
 				xtime = cal(s, xtime, start, finish, dd, ss, vv, ii);
+				vv[ii - 1] = vbest;
+				start = i;
+				finish = start;
+				if (finish == last - 1) {
+					xtime = cal(s, xtime, start, finish, dd, ss, vv, ii);
+				}
+				//计算空转时间
 				xtime += (s[i].start - s[i - 1].finish) / vbest;
-
 			}
-		}
-		else//不重叠就断开，生成新的数组
-		{
-			xtime = cal(s, xtime, start, finish, dd, ss, vv, ii);
-			vv[ii - 1] = vbest;
-			start = i;
-			finish = start;
-			if (finish == last - 1) {
-				xtime = cal(s, xtime, start, finish, dd, ss, vv, ii);
-			}
-			//计算空转时间
-			xtime += (s[i].start - s[i - 1].finish) / vbest;
 		}
 	}
-
+	
 	if (DEBUG)
 		cout << "Offline scheduling:" << endl;
 	double e = energy_out(dd, ss, vv, ii);
@@ -272,6 +280,7 @@ double divide(sensor s[], int first, int last, double& x, double dd[], int ss[],
 
 	x = xtime;
 	//energy = ;
+	NumofPeriod = ii - 1;
 	return e;
 }
 

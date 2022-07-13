@@ -8,4 +8,5 @@
 #define TAU					20
 #define HEIGHT_ENERGY_COEF	2.3 //能耗对应高度变化的系数
 #define V_DATA_TRANSMIT  2 //数据传输的速度
-#define DELTA_H 0.1 //高度离散化尺度
+#define DELTA_H 0.5 //高度离散化尺度
+#define EPSLION 1e-8 //判断
