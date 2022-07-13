@@ -219,7 +219,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 							//如果变化高度时空飞，高度怎么算
 							//是不是有范围的重叠两种情况对应不同的赋值情况
 							//如果范围没有重叠，首先给空飞的这一段赋值，然后段数下标+1,否则不做其他操作
-							int m = numOfPeriodVector[j][kk];
+							int m = numOfPeriodVector[j][kk] + 1;
 							if (rightOfJ < leftOfJ1)
 							{
 								//先给空飞的这一段的各项赋值
@@ -227,12 +227,12 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 								startCoordinate[k][m] = rightOfJ;
 								endCoordinate[k][m] = leftOfJ1;
 								speedVector[k][m] = VBEST;
-								m = numOfPeriodVector[j][kk] + 1;
+								m = m + 1;
 							}
 							//给每一段的各个值赋值
-							for (; m < numOfPeriodVector[i][k]; m++)
+							for (; m <= numOfPeriodVector[i][k]; m++)
 							{
-								int a = (rightOfJ < leftOfJ1) ? m - numOfPeriodVector[j][kk] - 1 : m - numOfPeriodVector[j][kk];
+								int a = (rightOfJ < leftOfJ1) ? m - numOfPeriodVector[j][kk] - 2 : m - numOfPeriodVector[j][kk] - 1;
 								hFly[k][m] = h[kk];
 								startCoordinate[k][m] = dd[a];
 								// endCoordinate[k][m] = dd[a + 1]
@@ -251,6 +251,39 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 				delete[]ss;
 				delete[]vv;
 			}
+			//如果整个过程中高度不变化
+			int numOfPeriod = 0;
+			sensor* s = new sensor[i];
+			//初始化数组s和存储中间结果的数组们
+			double* dd = new double[i * 3];
+			int* ss = new int[i * 3];
+			double* vv = new double[i * 3];
+			bool judge = true;
+			for (int p = 1; p <= i; p++)
+			{
+				judge = sensor2DToSensor(&sensors2D[p], &s[p - 1], h[k]);
+				if (!judge) break;
+			}
+			//如果当前高度所有传感器都可以传输数据
+			if (judge)
+			{
+				double energyAllHori = divide(s, 0, i, xtime, dd, ss, vv, numOfPeriod);
+				if (energyAllHori < minEnergy)
+				{
+					minEnergy = divide(s, 0, i, xtime, dd, ss, vv, numOfPeriod);
+					numOfPeriodVector[i][k] = numOfPeriod;
+					for (int m = 1; m <= numOfPeriod; m++)
+					{
+						hFly[k][m] = h[k];
+						startCoordinate[k][m] = dd[m];
+						speedVector[k][m] = vv[m];
+					}
+				}
+			}
+			delete[]s;
+			delete[]dd;
+			delete[]ss;
+			delete[]vv;
 			e_all[i][k] = minEnergy;
 		}
 	}
@@ -270,11 +303,20 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 
 	if (DEBUG)
 	{
+		cout << "hFly," << "startCoordinate," << "endCoordinate," << "speedVector:" << endl;
+		for (int i = 1; i <= numOfPeriodVector[SENSORNUM][bestK]; i++)
+		{
+			cout << hFly[bestK][i] << " ," << startCoordinate[bestK][i] << " ," << startCoordinate[bestK][i + 1] << "," << speedVector[bestK][i] << endl;
+		}
+	}
+
+	if (DEBUG)
+	{
 		ofstream file("test.csv");
 		if (file)
 		{
 			cout << "hFly," << "startCoordinate," << "endCoordinate," << "speedVector:" << endl;
-			for (int i = 0; i < numOfPeriodVector[SENSORNUM][bestK] - 1; i++)
+			for (int i = 1; i <= numOfPeriodVector[SENSORNUM][bestK]; i++)
 			{
 				file << hFly[bestK][i] << " ," << startCoordinate[bestK][i] << " ," << startCoordinate[bestK][i + 1] << "," <<speedVector[bestK][i] << "\n";
 				cout << hFly[bestK][i] << " ," << startCoordinate[bestK][i] << " ," << startCoordinate[bestK][i + 1] << "," << speedVector[bestK][i] << endl;
