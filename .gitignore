@@ -20,3 +20,4 @@ bld/
 *.sln
 *.vcxproj.*
 *.vcxproj
+*.dll
