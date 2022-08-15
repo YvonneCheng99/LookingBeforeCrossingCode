@@ -47,6 +47,22 @@ int main()
 	int sensorNumber[SENSORNUM * 3] = { 0 };
 	double speed[SENSORNUM * 3] = { 0.0 };//
 	altitudeScheduling(s, xtime, height_max, location, sensorNumber, speed);
+	
+	/*
+	//test divide
+	sensor* s = new sensor[SENSORNUM + 1];
+	s[0] = sensor(0, 1.0, 0.5, 1.0);
+	s[1] = sensor(1.2, 2.8, 2.0, 2.0);
+	s[2] = sensor(1.8, 3.0, 2.4, 1.5);
+	s[3] = sensor(2.5, 3.5, 3.0, 1.0);
+	double x_time = 0;
+	double dd[SENSORNUM * 3] = { 0.0 };//
+	int ss[SENSORNUM * 3] = { 0 };
+	double vv[SENSORNUM * 3] = { 0.0 };//
+	int numOfPeriod = 0;
+	double energy = divide(s, 0, SENSORNUM, x_time, dd, ss, vv, numOfPeriod);
+	cout << numOfPeriod << endl;
+	*/
 	// double R = getR(2.0, 2.0, 3.0);
 	// cout << "R:" << R << endl;
 	delete[]s;

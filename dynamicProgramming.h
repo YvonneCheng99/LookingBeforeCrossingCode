@@ -215,7 +215,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 							//存储中间结果
 							//先记录段数，之后根据段数记录其他的值
 							numOfPeriodVector[i][k] = (rightOfJ < leftOfJ1) ? 
-								numOfPeriod + numOfPeriodVector[j][kk] : numOfPeriod + numOfPeriodVector[j][kk] + 1;
+								numOfPeriod + numOfPeriodVector[j][kk] + 1 : numOfPeriod + numOfPeriodVector[j][kk];
 							for (int a = 1; a <= numOfPeriodVector[j][kk]; a++)
 							{
 								hFly[k][a] = hFly[kk][a];
@@ -245,6 +245,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 								// endCoordinate[k][m] = dd[a + 1]
 								speedVector[k][m] = vv[a];
 							}
+							startCoordinate[k][numOfPeriodVector[i][k] + 1] = sensors2D[SENSORNUM].position + getR(hFly[k][SENSORNUM], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
 							if (false)
 							{
 								cout << "There is smaller energy! Change the minEnergy." << endl;
@@ -285,6 +286,8 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 						startCoordinate[k][m] = dd[m];
 						speedVector[k][m] = vv[m];
 					}
+					//最后一个传感器在最后一段的高度下的右边界
+					startCoordinate[k][numOfPeriod + 1] = sensors2D[SENSORNUM].position + getR(hFly[k][SENSORNUM], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
 				}
 			}
 			delete[]s;
