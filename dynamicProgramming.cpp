@@ -3,6 +3,7 @@
 #include <vector>
 #include "float.h"
 #include "dynamicProgramming.h"
+#include "myrand.h"
 using namespace std;
 
 
@@ -35,11 +36,13 @@ int main()
 	sensor2D* s = new sensor2D[SENSORNUM + 1];
 	// double* h = new double[1];
 	initSensor(s);
+	//randam(s, SENSORNUM + 1);
 	//确定高度范围的最大值，即所有传感器中高度最高的传感器的高度
 	for (int i = 1; i <= SENSORNUM; i++)
 	{
 		if (height_max < s[i].h_max)
 			height_max = s[i].h_max;
+		// s[i].show();
 	}
 
 	double xtime = 0.0;

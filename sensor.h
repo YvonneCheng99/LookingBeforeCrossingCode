@@ -45,5 +45,5 @@ public:
 	}
 };
 
-bool randam(sensor*, int);
+// bool randam(sensor*, int);
 double energy_out(double dd_on[], int ss_on[], double vv_on[], int jj);

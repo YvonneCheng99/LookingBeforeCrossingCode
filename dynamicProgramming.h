@@ -22,7 +22,7 @@ double getR(double h, double b, double c)
 	gsl_poly_complex_workspace* w = gsl_poly_complex_workspace_alloc(5);
 	gsl_poly_complex_solve(a, 5, w, z);
 	gsl_poly_complex_workspace_free(w);
-	R = abs(z[0] - z[2]);
+	R = abs(z[0] - z[2])/2;
 	return R;
 }
 
@@ -61,6 +61,36 @@ double getEnergyCon(double v)
 	}
 }
 
+//打印数组
+void printVector(vector<vector<double>>& v)
+{
+	for (auto& row : v)
+	{
+		for (auto& column : row)
+		{
+			cout << column << " ";
+		}
+		cout << endl;
+	}
+}
+void printVector(vector<vector<int>>& v)
+{
+	for (auto& row : v)
+	{
+		for (auto& column : row)
+		{
+			cout << column << " ";
+		}
+		cout << endl;
+	}
+}
+
+//sensor2D randomSensors()
+//{
+//	sensor2D* sensors = new sensor2D[SENSORNUM];
+//
+//}
+
 double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, double* location, int* sensorNumber, double* speed)
 {
 	//离散化H
@@ -90,7 +120,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 	//存储每个GN对应的高度，不可以这么存，会被覆盖，存储最后高度为hk，第几段的高度
 	vector<vector<double>> hFly(K + 1, vector<double>(SENSORNUM * 2));
 	// 存储最后一段的高度为hk的情况下第几段的开始水平坐标
-	vector<vector<double>> startCoordinate(K + 1, vector<double>(SENSORNUM * 2));
+	vector<vector<double>> startCoordinate(K + 1, vector<double>(SENSORNUM * 3));
 	//存储最后一段高度为hk的情况下第几段的结束水平坐标
 	vector<vector<double>> endCoordinate(K + 1, vector<double>(SENSORNUM * 2));
 	//存储最后一段高度为hk的情况下第几段的飞行速度
@@ -118,6 +148,23 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 			startCoordinate[i][1] = sensors2D[1].position - R;
 			endCoordinate[i][1] = sensors2D[1].position + R;
 			speedVector[i][1] = v;
+			
+			if (DEBUG)
+			{
+				cout << "Sensor: 1, " << "Height: " << h[i] << " , Energy: " << e << endl;
+				cout << "energy:----------" << endl;
+				printVector(e_all);
+				cout << "numOfPeriodVector:----------" << endl;
+				printVector(numOfPeriodVector);
+				cout << "hFly:----------" << endl;
+				printVector(hFly);
+				cout << "startCoordinate:----------" << endl;
+				printVector(startCoordinate);
+				cout << "endCoordinate:----------" << endl;
+				printVector(endCoordinate);
+				cout << "speedVector:----------" << endl;
+				printVector(speedVector);
+			}
 		}
 		else 
 			e_all[1][i] = DBL_MAX;
@@ -128,18 +175,18 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 	{
 		if (DEBUG)
 		{
-			cout << "i:" << i << "----------------------------------" << endl;
+			cout << "计算到第" << i << "个传感器为止----------------------------------" << endl;
 		}
 		for (int k = 1; k <= K; k++)
 		{
 			if (DEBUG)
 			{
-				cout << "k:" << k << endl;
+				cout << "第" << i << "个传感器的高度为: " << h[k] << endl;
 			}
 			if (h[k] >= sensors2D[i].h_max)
 			{
 				e_all[i][k] = DBL_MAX;
-				continue;
+				break;
 			}
 			//计算采集到第i个传感器且最后高度为h的能耗
 			double minEnergy = DBL_MAX;
@@ -175,9 +222,12 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 				}
 				//计算水平飞行的能耗
 				double energy_hori = 0;
+				cout << "before----------------------" << endl;
 				energy_hori = divide(s, 0, i - j, xtime, dd, ss, vv, numOfPeriod);
+				cout << "after----------------------" << endl;
 				for (int kk = 1; kk <= K; kk++)
 				{
+					if (h[kk] >= sensors2D[j].h_max) break;
 					if (h[kk] < sensors2D[j].h_max && k != kk)
 					{
 						double delta_h = abs(h[k] - h[kk]);
@@ -198,13 +248,14 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 							temp += energy_between;
 						}
 						//能耗更小，需要更新最小值，并且更新保存下的中间数据的值
-						if (false)
+						if (DEBUG)
 						{
 							cout << "kk: " << kk << " ;energy: " << temp << endl;
 						}
 						if (temp < minEnergy)
 						{
 							minEnergy = temp;
+							/*
 							for (int m = j; m <= i; m++)
 							{
 								sensors2D[m].h_flight = h[kk];
@@ -212,10 +263,12 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 								sensorNumber[m] = ss[m - j];
 								speed[m] = vv[m - j];
 							}
+							*/
 							//存储中间结果
 							//先记录段数，之后根据段数记录其他的值
 							numOfPeriodVector[i][k] = (rightOfJ < leftOfJ1) ? 
 								numOfPeriod + numOfPeriodVector[j][kk] + 1 : numOfPeriod + numOfPeriodVector[j][kk];
+							//什么意思 为什么从1到numOfPeriodVector[j][kk],
 							for (int a = 1; a <= numOfPeriodVector[j][kk]; a++)
 							{
 								hFly[k][a] = hFly[kk][a];
@@ -237,18 +290,33 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 								m = m + 1;
 							}
 							//给每一段的各个值赋值
+							//要看bookingbefore算法的每一段怎么算的
+							int a = 0;
 							for (; m <= numOfPeriodVector[i][k]; m++)
 							{
-								int a = (rightOfJ < leftOfJ1) ? m - numOfPeriodVector[j][kk] - 2 : m - numOfPeriodVector[j][kk] - 1;
-								hFly[k][m] = h[kk];
+								//int a = (rightOfJ < leftOfJ1) ? m - numOfPeriodVector[j][kk] - 2 : m - numOfPeriodVector[j][kk] - 1;
+								hFly[k][m] = h[k];
 								startCoordinate[k][m] = dd[a];
 								// endCoordinate[k][m] = dd[a + 1]
 								speedVector[k][m] = vv[a];
+								a++;
 							}
 							startCoordinate[k][numOfPeriodVector[i][k] + 1] = sensors2D[SENSORNUM].position + getR(hFly[k][SENSORNUM], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
-							if (false)
+							if (DEBUG)
 							{
 								cout << "There is smaller energy! Change the minEnergy." << endl;
+								cout << "energy:----------" << endl;
+								printVector(e_all);
+								cout << "numOfPeriodVector:----------" << endl;
+								printVector(numOfPeriodVector);
+								cout << "hFly:----------" << endl;
+								printVector(hFly);
+								cout << "startCoordinate:----------" << endl;
+								printVector(startCoordinate);
+								cout << "endCoordinate:----------" << endl;
+								printVector(endCoordinate);
+								cout << "speedVector:----------" << endl;
+								printVector(speedVector);
 							}
 							
 						}
@@ -278,7 +346,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 				double energyAllHori = divide(s, 0, i, xtime, dd, ss, vv, numOfPeriod);
 				if (energyAllHori < minEnergy)
 				{
-					minEnergy = divide(s, 0, i, xtime, dd, ss, vv, numOfPeriod);
+					minEnergy = energyAllHori;
 					numOfPeriodVector[i][k] = numOfPeriod;
 					for (int m = 1; m <= numOfPeriod; m++)
 					{
@@ -288,6 +356,21 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 					}
 					//最后一个传感器在最后一段的高度下的右边界
 					startCoordinate[k][numOfPeriod + 1] = sensors2D[SENSORNUM].position + getR(hFly[k][SENSORNUM], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
+				}
+				if (DEBUG)
+				{
+					cout << "energy:----------" << endl;
+					printVector(e_all);
+					cout << "numOfPeriodVector:----------" << endl;
+					printVector(numOfPeriodVector);
+					cout << "hFly:----------" << endl;
+					printVector(hFly);
+					cout << "startCoordinate:----------" << endl;
+					printVector(startCoordinate);
+					cout << "endCoordinate:----------" << endl;
+					printVector(endCoordinate);
+					cout << "speedVector:----------" << endl;
+					printVector(speedVector);
 				}
 			}
 			delete[]s;
@@ -299,7 +382,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 	}
 	int bestK = -1;
 	double result = DBL_MAX;
-	for (int i = 1; i <= K; i++)
+	for (int i = 1; h[i] < sensors2D[SENSORNUM].h_max; i++)
 	{
 		if (result > e_all[SENSORNUM][i])
 		{
@@ -308,7 +391,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 			bestK = i;
 		}
 	}
-	startCoordinate[bestK][numOfPeriodVector[SENSORNUM][bestK]] = 
+	startCoordinate[bestK][numOfPeriodVector[SENSORNUM][bestK] + 1] = 
 		sensors2D[SENSORNUM].position + getR(h[bestK], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
 
 	if (DEBUG)
