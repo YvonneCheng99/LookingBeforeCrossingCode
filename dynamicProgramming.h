@@ -171,6 +171,11 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 		
 	}
 	//从第二个GN开始dp
+	sensor* s = new sensor[SENSORNUM + 1];
+	//初始化数组s和存储中间结果的数组们
+	double* dd = new double[SENSORNUM * 3];
+	int* ss = new int[SENSORNUM * 3];
+	double* vv = new double[SENSORNUM * 3];
 	for (int i = 2; i <= SENSORNUM; i++)
 	{
 		if (DEBUG)
@@ -200,11 +205,11 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 					cout << "j:" << j << endl;
 				}
 				int numOfPeriod = 0;
-				sensor* s = new sensor[i - j];
-				//初始化数组s和存储中间结果的数组们
-				double* dd = new double[(i - j) * 3];
-				int* ss = new int[(i - j) * 3];
-				double* vv = new double[(i - j) * 3];
+				//sensor* s = new sensor[i - j];
+				////初始化数组s和存储中间结果的数组们
+				//double* dd = new double[(i - j) * 3];
+				//int* ss = new int[(i - j) * 3];
+				//double* vv = new double[(i - j) * 3];
 				bool judge = true;
 				for (int p = j + 1; p <= i; p++)
 				{
@@ -322,18 +327,18 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 						}
 					}
 				}
-				delete[]s;
+				/*delete[]s;
 				delete[]dd;
 				delete[]ss;
-				delete[]vv;
+				delete[]vv;*/
 			}
 			//如果整个过程中高度不变化
 			int numOfPeriod = 0;
-			sensor* s = new sensor[i];
-			//初始化数组s和存储中间结果的数组们
-			double* dd = new double[i * 3];
-			int* ss = new int[i * 3];
-			double* vv = new double[i * 3];
+			//sensor* s = new sensor[i];
+			////初始化数组s和存储中间结果的数组们
+			//double* dd = new double[i * 3];
+			//int* ss = new int[i * 3];
+			//double* vv = new double[i * 3];
 			bool judge = true;
 			for (int p = 1; p <= i; p++)
 			{
@@ -373,13 +378,18 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 					printVector(speedVector);
 				}
 			}
-			delete[]s;
+			/*delete[]s;
 			delete[]dd;
 			delete[]ss;
-			delete[]vv;
+			delete[]vv;*/
 			e_all[i][k] = minEnergy;
 		}
 	}
+	delete[]s;
+	delete[]dd;
+	delete[]ss;
+	delete[]vv;
+
 	int bestK = -1;
 	double result = DBL_MAX;
 	for (int i = 1; h[i] < sensors2D[SENSORNUM].h_max; i++)
