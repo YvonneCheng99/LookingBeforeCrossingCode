@@ -10,8 +10,10 @@
 #include "sensor.h"
 #include "sensor2D.h"
 #include "calculate.h"
+#include <string>
 using namespace std;
 
+int fileNum = 0;
 //根据高度获取无人机可接收数据范围的半径
 double getR(double h, double b, double c)
 {
@@ -227,9 +229,9 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 				}
 				//计算水平飞行的能耗
 				double energy_hori = 0;
-				cout << "before----------------------" << endl;
+				if (DEBUG) cout << "before----------------------" << endl;
 				energy_hori = divide(s, 0, i - j, xtime, dd, ss, vv, numOfPeriod);
-				cout << "after----------------------" << endl;
+				if (DEBUG) cout << "after----------------------" << endl;
 				for (int kk = 1; kk <= K; kk++)
 				{
 					if (h[kk] >= sensors2D[j].h_max) break;
@@ -390,8 +392,7 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 	delete[]ss;
 	delete[]vv;
 
-	int bestK = -1;
-	double result = DBL_MAX;
+	int bestK = -1;	double result = DBL_MAX;
 	for (int i = 1; h[i] < sensors2D[SENSORNUM].h_max; i++)
 	{
 		if (result > e_all[SENSORNUM][i])
@@ -413,9 +414,10 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 		}
 	}
 
-	if (DEBUG)
+	if (true)
 	{
-		ofstream file("test.csv");
+		string fileName = string("test100_") + to_string(fileNum++) + ".csv";
+		ofstream file(fileName);
 		if (file)
 		{
 			cout << "hFly," << "startCoordinate," << "endCoordinate," << "speedVector:" << endl;

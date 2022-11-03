@@ -6,6 +6,9 @@
 #include "myrand.h"
 using namespace std;
 
+const int MIN_VAL = 5;
+const int MAX_VAL = 100;
+
 
 void initSensor(sensor2D* s)
 {
@@ -32,24 +35,63 @@ int main()
 	*/
 	
 	double height_max = 0.0;
-	
-	sensor2D* s = new sensor2D[SENSORNUM + 1];
-	// double* h = new double[1];
-	initSensor(s);
-	//randam(s, SENSORNUM + 1);
-	//确定高度范围的最大值，即所有传感器中高度最高的传感器的高度
-	for (int i = 1; i <= SENSORNUM; i++)
-	{
-		if (height_max < s[i].h_max)
-			height_max = s[i].h_max;
-		// s[i].show();
-	}
 
-	double xtime = 0.0;
+	
+	long seed = 1564584525524;
+	srand(seed);
 	double location[SENSORNUM * 3] = { 0.0 };//
-	int sensorNumber[SENSORNUM * 3] = { 0 };
+	int sensorNumber[SENSORNUM *3] = { 0 };
 	double speed[SENSORNUM * 3] = { 0.0 };//
-	altitudeScheduling(s, xtime, height_max, location, sensorNumber, speed);
+	for (int i = 0; i < 1; i++)
+	{
+		cout << "ith:" << i << endl;
+		sensor2D* s = new sensor2D[SENSORNUM + 1];
+		randam(s, SENSORNUM + 1);
+		cout << "sensor show:-------------------------" << endl;
+		for (int i = 1; i <= SENSORNUM; i++)
+		{
+			if (height_max < s[i].h_max)
+				height_max = s[i].h_max;
+			s[i].show();
+		}
+		double xtime = 0.0;
+		memset(location, 0.0, sizeof(location));
+		memset(sensorNumber, 0, sizeof(sensorNumber));
+		memset(speed, 0.0, sizeof(speed));
+		
+		altitudeScheduling(s, xtime, height_max, location, sensorNumber, speed);
+		ofstream file("sensor.csv");
+		if (file)
+		{
+			for (int i = 1; i <= SENSORNUM; i++)
+			{
+				file << s[i].b << " ," << s[i].c << " ," << s[i].position << "\n";
+			}
+		}
+		file.close();
+		
+		delete[]s;
+	}
+	
+
+	/*sensor2D* s = new sensor2D[SENSORNUM + 1];
+	double* h = new double[1];
+	initSensor(s);
+	s[1].calculateR();*/
+	////randam(s, SENSORNUM + 1);
+	////确定高度范围的最大值，即所有传感器中高度最高的传感器的高度
+	//for (int i = 1; i <= SENSORNUM; i++)
+	//{
+	//	if (height_max < s[i].h_max)
+	//		height_max = s[i].h_max;
+	//	// s[i].show();
+	//}
+
+	//double xtime = 0.0;
+	//double location[max_val * 3] = { 0.0 };//
+	//int sensorNumber[SENSORNUM * 3] = { 0 };
+	//double speed[SENSORNUM * 3] = { 0.0 };//
+	//altitudeScheduling(s, xtime, height_max, location, sensorNumber, speed);
 	
 	/*
 	//test divide
@@ -68,5 +110,5 @@ int main()
 	*/
 	// double R = getR(2.0, 2.0, 3.0);
 	// cout << "R:" << R << endl;
-	delete[]s;
+	//delete[]s;
 }

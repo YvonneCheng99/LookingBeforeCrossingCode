@@ -276,7 +276,7 @@ double divide(sensor s[], int first, int last, double& x, double dd[], int ss[],
 	if (DEBUG)
 		cout << "Offline scheduling:" << endl;
 	double e = energy_out(dd, ss, vv, ii);
-	cout << "Offline energy:\t" << e << endl;
+	if (DEBUG) cout << "Offline energy:\t" << e << endl;
 
 	x = xtime;
 	//energy = ;

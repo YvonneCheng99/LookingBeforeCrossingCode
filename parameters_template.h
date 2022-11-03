@@ -1,5 +1,5 @@
 #pragma once
-#define DEBUG 0
+#define DEBUG false
 #define VBEST 13.99
 #define VISION 50
 #define DIS 10000
