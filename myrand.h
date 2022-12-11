@@ -33,27 +33,10 @@ long randam(sensor2D* point, int NUM)
 	double delta;
 	double* rnda = new double[NUM];
 	struct timeval time;
-	/*
-	gettimeofday(&time);
-
-	seed = (time.tv_sec * 1000) + (time.tv_usec / 1000);
-	//seed = 1564584525524;
-	srand(seed);
-	cout << "Seed=\t" << seed << endl;
-
-	for (i = 0; i < n; i++) {
-		rnda[i] = myrandom(0, DIS - DRANGE);
-	}
-	sort(rnda, rnda + n);
-	// position
-	for (i = 0; i < n; i++) {
-		point[i].position = rnda[i];
-	}
-	*/
+	
 	gettimeofday(&time);
 	seed = (time.tv_sec * 1000) + (time.tv_usec / 1000);
-	//seed = 655028583;
-	seed = 677954649;
+	//seed = 677954649;
 	srand(seed);
 	cout << "Seed=\t" << seed << endl;
 	//c
@@ -82,6 +65,11 @@ long randam(sensor2D* point, int NUM)
 		if (h1 != h2)
 		{
 			consLow = (h1 < h2) ? point[i + 1].RofDifferentHeight[h1] : point[i].RofDifferentHeight[h2];
+			if (point[i].RofDifferentHeight[h1] < point[i + 1].RofDifferentHeight[h2])
+			{
+				double dif = point[i + 1].RofDifferentHeight[h2] - point[i].RofDifferentHeight[h1];
+				consLow = (dif > consLow) ? dif : consLow;
+			}
 		}
 		delta_dis = myrandom(consLow, consHigh);
 		point[i + 1].position = point[i].position + delta_dis;

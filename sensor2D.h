@@ -1,7 +1,5 @@
 #pragma once
 #include<iostream>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_poly.h>
 #include "parameters.h"
 
 using namespace std;

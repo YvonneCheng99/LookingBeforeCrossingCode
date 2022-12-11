@@ -1,8 +1,6 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_poly.h>
 #include <cmath>
 #include <float.h>
 #include <fstream>
@@ -14,39 +12,75 @@
 using namespace std;
 
 int fileNum = 0;
+vector<double> h;
 //根据高度获取无人机可接收数据范围的半径
 double getR(double h, double b, double c)
 {
 	double R = 0.0;
-	double a[5] = { pow(h,4) - b * pow(h,3), 0,
-		2 * h * h - b * h + c, 0, 1 };
-	double z[8];
-	gsl_poly_complex_workspace* w = gsl_poly_complex_workspace_alloc(5);
-	gsl_poly_complex_solve(a, 5, w, z);
-	gsl_poly_complex_workspace_free(w);
-	R = abs(z[0] - z[2])/2;
+
+	// 解两次一元二次方程
+	double aOfEquation = 1;
+	double bOfEquation = 2 * h * h - b * h + c;
+	double cOfEquation = pow(h, 4) - b * pow(h, 3);
+	double delta = bOfEquation * bOfEquation - 4 * aOfEquation * cOfEquation;
+	// 判别式小于0，无实根
+	if (delta - 0 < EPSLION)
+	{
+		cout << "there is something wrong when calculating the R." << endl;
+		return 0;
+	}
+	//判别式不小于0
+	else
+	{
+		//判别式等于0
+		if (delta - 0 == EPSLION)
+		{
+			if (-bOfEquation / (2 * aOfEquation) - 0 < EPSLION)
+			{
+				cout << "there is something wrong when calculating the R." << endl;
+				return 0;
+			}
+			else
+				R = sqrt(-bOfEquation / (2 * aOfEquation));
+		}
+		// 判别式大于零 两个实数解
+		else
+		{
+			double x1 = (-bOfEquation + sqrt(delta)) / (2 * aOfEquation);
+			double x2 = (-bOfEquation - sqrt(delta)) / (2 * aOfEquation);
+			if (x1 < 0 || x2 >0)
+			{
+				cout << "there is something wrong when calculating the R." << endl;
+				return 0;
+			}
+			else
+			{
+				R = sqrt(x1);
+			}
+		}
+	}
 	return R;
+}
+
+//获取传感器在高度h处的可接收数据范围的半径
+double getR(sensor2D* s2D, int k)
+{
+	return s2D->RofDifferentHeight[k];
 }
 
 //将有高度的节点的信息赋值给某一高度上节点的信息，便于调用一维算法计算
 //如果height大于或等于该传感器的最大高度，那么返回false；否则，返回true
-bool sensor2DToSensor(sensor2D* s2D, sensor* s, double height)
+bool sensor2DToSensor(sensor2D* s2D, sensor* s, int k)
 {
-	double R = getR(height, s2D->b, s2D->c);
+	// double R = getR(height, s2D->b, s2D->c);
+	double R = getR(s2D, k);
 	double posi = s2D->position;
 	s->position = posi;
 	s->start = posi - R;
 	s ->finish = posi + R;
 	s->time = s2D->dataAmount / V_DATA_TRANSMIT;
-	if (height >= s2D->h_max) return false;
+	if (h[k] >= s2D->h_max) return false;
 	return true;
-}
-
-
-//根据气球模型获取对应高度的可传输数据范围
-double getTransmittableRange(int sennum, int h)
-{
-	return 0.0;
 }
 
 //获取对应速度的能耗值
@@ -87,20 +121,10 @@ void printVector(vector<vector<int>>& v)
 	}
 }
 
-//sensor2D randomSensors()
-//{
-//	sensor2D* sensors = new sensor2D[SENSORNUM];
-//
-//}
-
 double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, double* location, int* sensorNumber, double* speed)
 {
 	//离散化H
-	vector<double> h;
 	int K = ceil(maxHeight / DELTA_H);
-	/*if (K > 0) h = new double[K + 2]();
-	else h = new double[1]();*/
-	
 	for (int i = 0; i <= K; i++)
 	{
 		h.push_back(i * DELTA_H);
@@ -135,7 +159,8 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 	{
 		if (h[i] < sensors2D[1].h_max)
 		{
-			double R = getR(h[i], sensors2D[1].b, sensors2D[1].c);
+			// double R = getR(h[i], sensors2D[1].b, sensors2D[1].c);
+			double R = getR(&sensors2D[1], i);
 			double v = 2 * R / t_min; //保证该GN完成传输的最快的速度
 			//如果速度比能耗最优的速度大，则增加时间，减小速度，来使得能耗最优
 			if (v > VBEST)
@@ -208,14 +233,10 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 				}
 				int numOfPeriod = 0;
 				//sensor* s = new sensor[i - j];
-				////初始化数组s和存储中间结果的数组们
-				//double* dd = new double[(i - j) * 3];
-				//int* ss = new int[(i - j) * 3];
-				//double* vv = new double[(i - j) * 3];
 				bool judge = true;
 				for (int p = j + 1; p <= i; p++)
 				{
-					judge = sensor2DToSensor(&sensors2D[p], &s[p - j - 1], h[k]);
+					judge = sensor2DToSensor(&sensors2D[p], &s[p - j - 1], k);
 					if (!judge) break;
 				}
 				if (!judge && DEBUG) cout << "continue!" << endl;
@@ -245,8 +266,10 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 						double temp = e_all[j][kk] + energy_h + energy_hori;
 						// 如果变化高度前后的两个GN不重叠，需要加上在两个GN之间飞行的能耗
 						// 看在其对应的飞行高度上第j个传感器的右边界与第j+1个传感器的左边界哪个更大判断是否有重叠
-						double rightOfJ = sensors2D[j].position + getR(h[kk], sensors2D[j].b, sensors2D[j].c);
-						double leftOfJ1 = sensors2D[j + 1].position - getR(h[k], sensors2D[j + 1].b, sensors2D[j + 1].c);
+						// double rightOfJ = sensors2D[j].position + getR(h[kk], sensors2D[j].b, sensors2D[j].c);
+						// double leftOfJ1 = sensors2D[j + 1].position - getR(h[k], sensors2D[j + 1].b, sensors2D[j + 1].c);*
+						double rightOfJ = sensors2D[j].position + getR(&sensors2D[j], kk);
+						double leftOfJ1 = sensors2D[j + 1].position - getR(&sensors2D[j + 1], k);
 						if (rightOfJ < leftOfJ1)
 						{
 							double v = VBEST;
@@ -308,7 +331,8 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 								speedVector[k][m] = vv[a];
 								a++;
 							}
-							startCoordinate[k][numOfPeriodVector[i][k] + 1] = sensors2D[SENSORNUM].position + getR(hFly[k][SENSORNUM], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
+							// startCoordinate[k][numOfPeriodVector[i][k] + 1] = sensors2D[SENSORNUM].position + getR(hFly[k][SENSORNUM], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
+							startCoordinate[k][numOfPeriodVector[i][k] + 1] = sensors2D[SENSORNUM].position + getR(&sensors2D[SENSORNUM], hFly[k][SENSORNUM]/DELTA_H);
 							if (DEBUG)
 							{
 								cout << "There is smaller energy! Change the minEnergy." << endl;
@@ -329,22 +353,14 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 						}
 					}
 				}
-				/*delete[]s;
-				delete[]dd;
-				delete[]ss;
-				delete[]vv;*/
 			}
 			//如果整个过程中高度不变化
 			int numOfPeriod = 0;
-			//sensor* s = new sensor[i];
-			////初始化数组s和存储中间结果的数组们
-			//double* dd = new double[i * 3];
-			//int* ss = new int[i * 3];
-			//double* vv = new double[i * 3];
+			//sensor* s = new sensor[i];;
 			bool judge = true;
 			for (int p = 1; p <= i; p++)
 			{
-				judge = sensor2DToSensor(&sensors2D[p], &s[p - 1], h[k]);
+				judge = sensor2DToSensor(&sensors2D[p], &s[p - 1], k);
 				if (!judge) break;
 			}
 			//如果当前高度所有传感器都可以传输数据
@@ -362,7 +378,8 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 						speedVector[k][m] = vv[m];
 					}
 					//最后一个传感器在最后一段的高度下的右边界
-					startCoordinate[k][numOfPeriod + 1] = sensors2D[SENSORNUM].position + getR(hFly[k][SENSORNUM], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
+					//startCoordinate[k][numOfPeriod + 1] = sensors2D[SENSORNUM].position + getR(hFly[k][SENSORNUM], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
+					startCoordinate[k][numOfPeriod + 1] = sensors2D[SENSORNUM].position + getR(&sensors2D[SENSORNUM], hFly[k][SENSORNUM]/DELTA_H);
 				}
 				if (DEBUG)
 				{
@@ -380,10 +397,6 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 					printVector(speedVector);
 				}
 			}
-			/*delete[]s;
-			delete[]dd;
-			delete[]ss;
-			delete[]vv;*/
 			e_all[i][k] = minEnergy;
 		}
 	}
@@ -402,9 +415,10 @@ double altitudeScheduling(sensor2D* sensors2D, double xtime, double maxHeight, d
 			bestK = i;
 		}
 	}
+	// startCoordinate[bestK][numOfPeriodVector[SENSORNUM][bestK] + 1] = 
+	//	sensors2D[SENSORNUM].position + getR(h[bestK], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
 	startCoordinate[bestK][numOfPeriodVector[SENSORNUM][bestK] + 1] = 
-		sensors2D[SENSORNUM].position + getR(h[bestK], sensors2D[SENSORNUM].b, sensors2D[SENSORNUM].c);
-
+		sensors2D[SENSORNUM].position + getR(&sensors2D[SENSORNUM], bestK);
 	if (DEBUG)
 	{
 		cout << "hFly," << "startCoordinate," << "endCoordinate," << "speedVector:" << endl;
